@@ -22,25 +22,10 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/bueti/cartographer/create"
 	"github.com/spf13/cobra"
 )
 
-// createCmd represents the create command
-var createCmd = &cobra.Command{
-	Use:   "create",
-	Short: "Create a new App of Apps Chart",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("create called")
-	},
-}
 var ChartName string
 var ChartRepository string
 var ChartVersion string
@@ -49,14 +34,38 @@ var Namespace string
 var ValueFiles string
 var Secrets bool
 
+// createCmd represents the create command
+var createCmd = &cobra.Command{
+	Use:   "create",
+	Short: "Create a new App of Apps Chart",
+	Long: `A longer description that spans multiple lines and likely contains examples
+and usage of using your command. For example:`,
+
+	Run: func(cmd *cobra.Command, args []string) {
+		c, _ := cmd.Flags().GetString("chartname")
+		r, _ := cmd.Flags().GetString("repository")
+		v, _ := cmd.Flags().GetString("version")
+		p, _ := cmd.Flags().GetString("project")
+		n, _ := cmd.Flags().GetString("namespace")
+		f, _ := cmd.Flags().GetString("valuefiles")
+		s, _ := cmd.Flags().GetBool("secrets")
+
+		create.CreateApplicationCrd(c, r, v, p, n, f, s)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(createCmd)
 
 	createCmd.Flags().StringVarP(&ChartName, "chartname", "c", "", "Name of the source chart")
+	createCmd.MarkFlagRequired("chartname")
 	createCmd.Flags().StringVarP(&ChartRepository, "repository", "r", "", "URL of source repository")
+	createCmd.MarkFlagRequired("repository")
 	createCmd.Flags().StringVarP(&ChartVersion, "version", "v", "", "Chart version")
+	createCmd.MarkFlagRequired("version")
 	createCmd.Flags().StringVarP(&Project, "project", "p", "default", "Name of the ArgoCD project")
 	createCmd.Flags().StringVarP(&Namespace, "namespace", "n", "", "Namespace to install chart into")
+	createCmd.MarkFlagRequired("namespace")
 	createCmd.Flags().StringVarP(&ValueFiles, "valuefiles", "f", "", "Valuefiles, eg.: file1,file2")
-	createCmd.Flags().BoolVarP(&Secrets, "secrets", "s", true, "generate a secrets file?")
+	createCmd.Flags().BoolVarP(&Secrets, "secrets", "s", false, "generate a secrets file?")
 }
